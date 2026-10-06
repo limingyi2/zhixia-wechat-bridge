@@ -16,7 +16,7 @@ AstrBot / dify 那类框架都假设「LLM 是一次性无状态调用」，自�
 知夏的大脑在云端已经管好了人设和记忆，再叠一层 session 会让她被两套记忆
 同时驱动 —— 表现是"群里说的话记到别处去了"。所以这里刻意做得很薄。
 
-## 关于免费版 wxauto4 的两个实测结论（重要）
+## 关于免费版 wxauto4 的两个结论（重要）
 
 1. `AddListenChat` **能建子窗口，但回调不触发**（实测 6 秒 0 次）。
    文档标它是 Plus 专属 —— 建窗口那步没拦，推送那步拦了。
@@ -73,7 +73,7 @@ DEFAULT_CFG = {
     "poll_seconds": 3,
     # 云端大脑地址。隧道优先。
     # 🔴 这里**只留隧道**，公网直连那条要写进 wxbridge.local.json（被 gitignore 挡着）。
-    # 原来默认值里写死了云机公网 IP —— 那是把服务器地址印在公开仓库里，
+        # 默认值里不要写死云机公网 IP —— 那是把服务器地址印在公开仓库里，
     # 而且会让人以为"公网直连是正常路径"（其实它慢且常超时，只该当兜底）。
     "brain_urls": ["http://127.0.0.1:18787"],
     "brain_token": "",
@@ -206,7 +206,7 @@ class Brain(object):
               % (self.urls[-1].rsplit(":", 1)[-1] if ":" in self.urls[-1] else "API"))
         print("（22端口的 SSH 能连上不代表 API 端口也能连，这个坑查过一次）")
         print("先开隧道：双击 VigilSelfTest.bat（新版本会自动开隧道并等它就绪）")
-        # 这里原来把云机地址和 SSH 用户名写死在提示里 —— 一句"帮人排错"的
+                # 不要把云机地址和 SSH 用户名写死在提示里 —— 一句"帮人排错"的
         # 文案，把服务器地址印进了公开仓库。改成从**你自己配的**地址里取：
         # 取到了就显示，取不到（只配了隧道）就让他照模板填。
         _pub = [u for u in self.urls if "127.0.0.1" not in u and "localhost" not in u]
@@ -299,7 +299,7 @@ class Bridge(object):
         from wxauto4 import WeChat
         # ads=False：默认会打印一段广告，没必要
         #
-        # 这里**不能**靠传参指定连哪个微信 —— 实测传了不报错但完全无效：
+                # 这里**不能**靠传参指定连哪个微信 —— 传了不报错但完全无效：
         #   WeChat(ads=False, path=r'D:\Weixin418\Weixin.exe')
         #     -> wx.path 仍是 C:\Program Files\Tencent\Weixin\Weixin.exe
         #        wx.dir  仍是 C:\Program Files\Tencent\Weixin\203.0.113.10
@@ -307,7 +307,7 @@ class Bridge(object):
         # 它连哪一个没有保证。所以只能靠下面的身份硬闸。
         #
         # 构造**会抛**，不是返回 False：微信 4.x 的控件树没被唤醒时它直接
-        # 抛「未找到已登录的客户端主窗口」。原来这里没有 try，异常一路穿到
+                # 抛「未找到已登录的客户端主窗口」。这里没有 try 时异常一路穿到
         # main()，表现是桥接在十一秒后静默退出、控制台只剩一个裸 traceback，
         # 而 launcher.log 只记「exited with code 1」——说不出原因。所以这里
         # 接住并说人话，返回 False 让上层按"连不上"处理。
@@ -335,8 +335,8 @@ class Bridge(object):
             pass
         self.my_name = (my.get("display_name") or "").strip()
         self.my_id = (my.get("id") or "").strip()
-        # 这两个属性实测能读到（pyd 里的 uWeChat.path / uWeChat.dir），
-        # 拿它可以在比对 wxid 之前就发现「连到别的实例去了」
+                        # 这两个属性能读到（pyd 里的 uWeChat.path / uWeChat.dir），
+                        # 拿它可以在比对 wxid 之前就发现「连到别的实例去了」
         self.wx_path = str(getattr(self.wx, "path", "") or "")
         self.wx_dir = str(getattr(self.wx, "dir", "") or "")
         print("[微信] 已连上：昵称=%r wxid=%r 地区=%r"
@@ -354,11 +354,11 @@ class Bridge(object):
             try:
                 # 用**子窗口**而不是主窗口。
                 #
-                # 为什么不走 AddListenChat 的回调：实测 4.1.8 + wxauto4 41.1.7
+                                # 为什么不走 AddListenChat 的回调：4.1.8 + wxauto4 41.1.7
                 # 下回调**根本不触发**（子窗口能读到消息，但 fired 一直是 0）。
                 # 所以改成"子窗口 + 轮询" —— 子窗口是独立出来的对话，
                 # 读它**不会把主微信窗口切走**，也就不抢你正在用的窗口。
-                # 这是"不抢窗口 + 可靠"唯一实测成立的组合。
+                                # 这是"不抢窗口 + 可靠"唯一成立的组合。
                 if self.listen:
                     sub = None
                     try:
@@ -400,8 +400,8 @@ class Bridge(object):
         #   banned = set(self.cfg.get("forbidden_wxids") or [])
         #   if self.my_id and self.my_id in banned: ... 拒绝运行
 
-        # 实例路径对不上：还没比 wxid 就先发现了「连的不是那一份微信」。
-        # 微信 4.x 跨安装目录单实例（D 盘那份实测 15 秒就把启动请求
+                # 实例路径对不上：还没比 wxid 就能发现「连的不是那一份微信」。
+                # 微信 4.x 跨安装目录单实例（D 盘那份 15 秒就把启动请求
         # 转交给 C 盘那份然后自己退出），所以最常见的错不是登错号，
         # 是另一个微信还开着、桥接连上了它 —— 这条能在最早的地方拦住。
         want_dir = (self.cfg.get("bot_weixin_dir") or "").strip()
@@ -555,7 +555,7 @@ class Bridge(object):
                 content = str(getattr(m, "content", "") or "").strip()
             except Exception:
                 continue
-            # 图片原来在这里被直接丢掉：content 是 "[图片]" 占位符，
+                        # 图片要在这里被直接丢掉：content 是 "[图片]" 占位符，
             # 命中 MEDIA_PLACEHOLDERS 就 continue。所以她**在微信里一直看不见图**
             # —— 不是模型不支持，是桥接压根没把图传过去。
             # 现在：认出图片消息就登记下来，等确认是新增消息再下载转 base64。
@@ -569,7 +569,7 @@ class Bridge(object):
                 content = ""
             if not content and not img:
                 continue
-            # 微信把自己发的消息标成 'self'（实测）。换成昵称，
+                            # 微信把自己发的消息标成 'self'。换成昵称，
             # 免得下游把它当成一个叫 self 的陌生人拼进给大脑的话里。
             if sender.lower() in self.SELF_MARKERS:
                 sender = self.my_name or "我"
@@ -911,8 +911,8 @@ class Bridge(object):
                     break
             if idx < 0:
                 # 认不出锚点时**不要更新 _prev**。
-                # 原来这里是 new=[] 然后照样 self._prev = now，于是
-                # 上一轮的图片查看窗口里的内容被当成了新的基线。
+                                # 若这里是 new=[] 然后照样 self._prev = now，于是
+                                # 上一条的图片查看窗口里的内容会被当成新的基线。
                 # 回到聊天窗后前缀跟这个基线永远对不上，那条图就被
                 # 重新认成新消息 → 再 download() → 再开一次窗 → 死循环。
                 # 不更新基线的代价：下一轮还会认不出来、还是返回空，
@@ -928,7 +928,7 @@ class Bridge(object):
     # --- 要不要回 ---------------------------------------------------
 
     # 微信里"我自己发的"这条消息，sender 字段是这些值之一
-    # （实测文件传输助手发给自己时就是 'self'，不是昵称）
+        # （文件传输助手发给自己时就是 'self'，不是昵称）
     SELF_MARKERS = ("self", "我", "自己")
 
     def _is_mine(self, sender, content):
@@ -1053,7 +1053,7 @@ class Bridge(object):
         cap = int(self.cfg.get("max_reply_chars") or 400)
         if len(text) > cap:
             text = text[:cap] + "…"
-        # 发出去之前的最后一道闸。
+                # 发出去之前的最后一道闸。
         # 从「读到消息」到「把字打进输入框」之间隔着问云端大脑的时间
         # （可能几十秒），这段时间里微信完全可能掉线重连到了别的号。
         # 所以**每一条要发出去的消息，都在这个瞬间重新确认一次身份** ——
@@ -1213,7 +1213,7 @@ class Bridge(object):
         new = self._diff(items)
         for sender, content, img in new:
             # 图片**这一轮才算真正下载** —— _snapshot 里只登记，
-            # 是因为它跑在 _diff 之前、对的是全部历史消息而不是新增的那些。
+                        # 是因为它跑在 _diff 之前、对的是全部历史消息而不是新增的那些。
             #
             # 顺序也重要：下载放在 _is_mine / _should_reply **之后**。
             # 她自己发的图、群里没点名她的图，根本不必下载 ——
@@ -1348,7 +1348,7 @@ class Bridge(object):
                         if self.brain.pick():
                             print("[大脑] 恢复了：%s" % self.brain.picked)
                 # 两种模式都轮询：主窗口读会抢你正在用的微信窗口，
-                # 子窗口读不会。回调那条路实测不触发，不考虑。
+                                # 子窗口读不会。回调那条路不触发，不考虑。
                 try:
                     self.step()
                 except Exception as e:
@@ -1372,7 +1372,7 @@ def main():
 
     # --with <对话名>：不进群也能先测。
     #
-    # 建群之前的自测：让桥接盯着任意一个对话窗口（一般是「文件传输助手」），
+        # 建群之前的自测：让桥接盯着任意一个对话窗口（一般是「文件传输助手」），
     # 链路一样能跑通。
     #
     # 为什么安全：桥接从头到尾连的是知夏小号（expected_wxid 核对），
