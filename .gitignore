@@ -1,0 +1,22 @@
+# 运行时真配置 —— 里面有 brain_token、桥接机公网 IP、群里的人名。
+# 仓库里只留 .example.json 那份占位。
+wxbridge.local.json
+wxbridge.local.json*
+config.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+
+# 日志与临时产物
+*.log
+wxauto_logs/
+_probe_*.txt
