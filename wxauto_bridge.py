@@ -110,7 +110,7 @@ def _looks_like_image(m, content):
 def _strip_img_placeholder(content):
     """从消息里把 [图片] 占位符剥掉，留下用户自己打的那句话。
 
-    🔴 踩过：原来写的是 `content if not content.startswith("[图片]") else ""`——
+    🔴 已知失效写法：`content if not content.startswith("[图片]") else ""`——
     意思是"只要开头是 [图片] 就把**整句**丢掉"。于是「[图片]这个啥意思」
     这条变成了空字符串，用户真正问的那半句被一起扔了。
     她收到一张图、但不知道他问的是什么，只能瞎猜。
@@ -184,7 +184,7 @@ class Brain(object):
                 if self.token:
                     url += "?token=" + urllib.parse.quote(self.token)
                 with self._opener.open(
-                        urllib.request.Request(url, headers={"User-Agent": "zhixia"}),
+                        urllib.request.Request(url, headers={"User-Agent": "vigil"}),
                         timeout=8) as r:
                     r.read(200)
                 self.picked = u.rstrip("/")
@@ -195,7 +195,7 @@ class Brain(object):
                 continue
         # 连不上大脑 = 桥接毫无意义：每条消息都会走到 ask() 然后拿不到
         # 任何回复，群里表现就是"她一声不吭"。必须说清楚为什么、怎么修，
-        # 静默退出让人只能盯着不发火的窗口干瞪眼（这个坑踩过一次）。
+        # 静默退出时用户只能盯着不发火的窗口干瞪眼。
         print("")
         print("=" * 62)
         print("连不上大脑，桥接无法工作（每条消息都会石沉大海）")
@@ -205,7 +205,7 @@ class Brain(object):
         print("最常见的原因：SSH 隧道没开。云端的 %s 端口**不对公网开放**"
               % (self.urls[-1].rsplit(":", 1)[-1] if ":" in self.urls[-1] else "API"))
         print("（22端口的 SSH 能连上不代表 API 端口也能连，这个坑查过一次）")
-        print("先开隧道：双击 知夏自测.bat（新版本会自动开隧道并等它就绪）")
+        print("先开隧道：双击 VigilSelfTest.bat（新版本会自动开隧道并等它就绪）")
         # 这里原来把云机地址和 SSH 用户名写死在提示里 —— 一句"帮人排错"的
         # 文案，把服务器地址印进了公开仓库。改成从**你自己配的**地址里取：
         # 取到了就显示，取不到（只配了隧道）就让他照模板填。
@@ -1036,7 +1036,7 @@ class Bridge(object):
         self._last_lurk = time.time()
         print("[冷场] 安静了 %.0f 分钟（这次掷到 %.0f 分钟），问她要不要说点什么"
               % (idle_sec / 60, self._idle_target / 60))
-        # 不问"你要不要说话"，那类措辞她会当成可以聊的内容（踩过）
+        # 不问"你要不要说话" —— 那类措辞她会当成可以聊的内容
         text = self.brain.ask("[系统] 群里已经很久没人说话了")
         if text:
             self._send(text)
@@ -1299,7 +1299,7 @@ class Bridge(object):
         """
         import importlib.util
         sw = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                          "..", "..", ".workbuddy", "scripts", "_zhixia_switch.py")
+                          "..", "..", ".workbuddy", "scripts", "_vigil_switch.py")
         sw = os.path.normpath(sw)
         if not os.path.exists(sw):
             return False
