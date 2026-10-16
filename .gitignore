@@ -20,3 +20,13 @@ venv/
 *.log
 wxauto_logs/
 _probe_*.txt
+
+# Private runtime material: never publish real conversations or credentials.
+brain/archive/*chat_history*
+wechat-bridge/wxbridge.local.json*
+wechat_bridge/wxbridge.local.json*
+brain/config/management_agent_tokens.json
+*.bundle
+ssh.txt
+.env
+!.env.example
